@@ -1,5 +1,5 @@
 NAME = philo
-SRCS = main.c ft_atoui.c
+SRCS = main.c ft_atoui.c activities.c arguments.c deinit.c eat.c error.c init.c lockers.c timemaster.c threads.c
 OBJS = $(SRCS:.c=.o)
 HEADER = philosophers.h
 FLAGS = -Werror -Wall -Wextra -g
