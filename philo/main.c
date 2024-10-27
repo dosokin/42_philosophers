@@ -97,21 +97,11 @@ int get_args(int argc, char **argv, t_main_data *data)
     argv++;
     if (argc == 6)
         data->must_eat = ft_safe_atoi(*argv, &error);
-    data->must_eat = -1;
+    else
+        data->must_eat = -1;
     if (error)
         return (1);
     return (0);
-}
-
-struct timeval get_timeval()
-{
-    struct timeval  time;
-
-//    time = malloc(sizeof(struct timeval));
-    gettimeofday(&time, NULL);
-//    timer.mutex = malloc(sizeof(pthread_mutex_t));
-//    pthread_mutex_init(timer.mutex, NULL);
-    return (time);
 }
 
 int check_arg_validity(t_main_data data)
@@ -124,227 +114,59 @@ int check_arg_validity(t_main_data data)
     return (0);
 }
 
-//t_lst_philo *initialize_philo(size_t index)
-//{
-//    t_lst_philo *philo;
-//
-//    philo = malloc(sizeof(t_lst_philo));
-//    philo =
-//}
-//
-//t_lst_philo *initialize_philosophers_lst(size_t number_of_philosophers)
-//{
-//    size_t i;
-//    t_lst_philo *philo_lst;
-//    t_lst_philo *new_philo;
-//
-//    i = 0;
-//    while (i < number_of_philosophers)
-//    {
-//         new_philo = initialize_philo(i);
-//         if (!new_philo)
-//         {
-//             ft_lst_philo_clear(philo_lst);
-//             return (NULL);
-//         }
-//         ft_lst_philo_addback(&philo_lst, new_philo);
-//    }
-//    return (philo_lst);
-//}
-//
-//t_lst_philo initialize_philo(size_t index, struct timeval reftime, pthread_mutex_t left_fork, st)
-//{
-//
-//}
-
-pthread_mutex_t *init_mutex()
+void    ft_printf(t_philo philo, enum e_philo_action action)
 {
-    pthread_mutex_t *mutex;
+    static char *actions[5] = {
+            " has taken a fork",
+            " is eating",
+            " is sleeping",
+            " is thinking",
+            " died",
+    };
+    unsigned long now;
 
-    mutex = malloc(sizeof(pthread_mutex_t));
-    if (!mutex)
-    {
-        error_manager(MEM_ERR);
-        return (NULL);
-    }
-    if (pthread_mutex_init(mutex, NULL))
-    {
-        error_manager(MUTEX);
-        free(mutex);
-        return (NULL);
-    }
-    return (mutex);
+    now = get_time_in_ms();
+    pthread_mutex_lock(philo.main_data.print_mutex);
+    printf("%zu %zu", now, philo.id);
+    printf("%s\n", actions[action]);
+    pthread_mutex_unlock(philo.main_data.print_mutex);
 }
 
-int clear_mutex(pthread_mutex_t **mutex)
-{
-    if (pthread_mutex_destroy(*mutex))
-    {
-        error_manager(MUTEX);
-        return (1);
-    }
-    free(*mutex);
-    *mutex = NULL;
-    return (0);
-}
-
-void clear_philo_tab(t_lst_philo *philo_tab, size_t philo_count)
-{
-//    t_lst_philo *current;
-//    t_lst_philo *next;
-//
-//    if (!philo_tab)
-//        return;
-//    current = philo_tab;
-//    while (current)
-//    {
-//        next = current->next;
-//        clear_mutex(&current->right_fork);
-//        free(current);
-//        current = next;
-//    }
-
-}
-//
-//t_lst_philo *initialize_philosopher(size_t philo_id, t_main_data data, pthread_mutex_t *left_fork)
-//{
-//    t_lst_philo *philo;
-//
-//    philo = malloc(sizeof(t_lst_philo));
-//    philo->id = philo_id;
-//    philo->print_mutex = data.print_mutex;
-//    philo->last_meal = data.ref_time;
-//    philo->ref_time = data.ref_time;
-//    philo->left_fork = left_fork;
-//    philo->right_fork = init_mutex();
-//    if (!philo->right_fork)
-//    {
-//        free(philo);
-//        error_manager(MUTEX);
-//        return (NULL);
-//    }
-//    philo->next = NULL;
-//    philo->state = THINK;
-//    return (philo);
-//}
-
-int initialize_philosopher(t_lst_philo *philo, size_t philo_id, t_main_data data, pthread_mutex_t *left_fork)
-{
-    philo->id = philo_id;
-    philo->print_mutex = data.print_mutex;
-    philo->last_meal = data.ref_time;
-    philo->ref_time = data.ref_time;
-    philo->left_fork = left_fork;
-    philo->right_fork = init_mutex();
-    if (!philo->right_fork)
-    {
-        error_manager(MUTEX);
-        return (1);
-    }
-    philo->next = NULL;
-    philo->state = THINK;
-    return (0);
-}
-
-t_lst_philo *initialize_philosophers_tab(size_t number_of_philosophers, t_main_data data)
-{
-    t_lst_philo *philo_tab;
-    pthread_mutex_t *left_fork;
-    size_t i;
-
-    i = 0;
-    left_fork = NULL;
-    philo_tab = malloc((number_of_philosophers + 1) * sizeof(t_lst_philo));
-    while(i < number_of_philosophers)
-    {
-        if (initialize_philosopher(&(philo_tab[i]), i, data, left_fork))
-        {
-            clear_philo_tab(philo_tab, i);
-            return (NULL);
-        }
-        left_fork = philo_tab[i].right_fork;
-        i++;
-    }
-    //let or delete?
-    if (number_of_philosophers > 1)
-        philo_tab->left_fork = left_fork;
-    return (philo_tab);
-}
-
-int initialize_data(t_main_data *data)
-{
-    data->ref_time = get_timeval();
-    data->death.is_death = false;
-    data->death.mutex = init_mutex();
-    if (!data->death.mutex)
-        return (1);
-    data->print_mutex = init_mutex();
-    if (!data->print_mutex)
-        return (1);
-    data->philosophers = initialize_philosophers_tab(data->number_of_philosophers, *data);
-    if (!data->philosophers)
-    {
-        clear_mutex(&data->death.mutex);
-        return (1);
-    }
-    return (0);
-}
-
-void    ft_printf(pthread_mutex_t *print_mutex, size_t id)
-{
-    pthread_mutex_lock(print_mutex);
-    printf("hey im philo #%zu\n", id);
-    pthread_mutex_unlock(print_mutex);
-}
-
-void	*test_routine(void *arg)
-{
-    t_lst_philo *philo;
+void	*test_routine(void *arg) {
+    t_philo *philo;
 
     if (!arg)
         return (NULL);
     philo = arg;
-    ft_printf(philo->print_mutex, philo->id);
+    ft_printf(*philo, philo->id % 5);
     return (NULL);
 }
 
-
-int	launch_philos_threads(t_main_data *data)
+bool check_for_death(t_philo *philo)
 {
-    t_lst_philo *current;
+    bool is_death;
 
-    current = data->philosophers;
-    while (current)
+    pthread_mutex_lock(philo->main_data.death.mutex);
+    is_death = philo->main_data.death.is_death;
+    pthread_mutex_unlock(philo->main_data.death.mutex);
+    return (is_death);
+}
+
+void *routine(void *arg)
+{
+    t_philo *philo;
+
+    if (!arg)
+        return (NULL);
+    philo = arg;
+    ft_printf(*philo, TAKE_FORK);
+    while (philo->main_data.must_eat < 0 || philo->main_data.must_eat--)
     {
-        if (pthread_create(&(current->thread), NULL,
-                           &test_routine, current))
-            return (error_manager(THR_ISSUE));
-        current = current->next;
+        printf("%d\n", philo->main_data.must_eat);
+        sleep(5);
     }
-    return (0);
+    return (NULL);
 }
-
-void clear_data(t_main_data *data)
-{
-    clear_mutex(&(data->death.mutex));
-    clear_mutex(&(data->print_mutex));
-    clear_philo_tab(data->philosophers);
-}
-
-int	join_philos_threads(t_main_data *data)
-{
-    t_lst_philo *current;
-
-    current = data->philosophers;
-    while (current)
-    {
-        if (pthread_join(current->thread, NULL))
-            return (error_manager(THR_ISSUE));
-        current = current->next;
-    }
-    return (0);
-}
-
 
 int	main(int argc, char **argv)
 {

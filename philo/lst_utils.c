@@ -13,7 +13,7 @@
 #include "philosophers.h"
 #include <stdlib.h>
 
-t_lst_philo *lst_philo_get_last(t_lst_philo *head)
+t_philo *lst_philo_get_last(t_philo *head)
 {
     if (!head)
         return (NULL);
@@ -22,10 +22,10 @@ t_lst_philo *lst_philo_get_last(t_lst_philo *head)
     return (head);
 }
 
-size_t	ft_lst_size(t_lst_philo *head)
+size_t	ft_lst_size(t_philo *head)
 {
 	size_t	elements_count;
-	t_lst_philo	*tempo;
+	t_philo	*tempo;
 
 	if (!head)
 		return (0);
@@ -40,10 +40,10 @@ size_t	ft_lst_size(t_lst_philo *head)
 	return (elements_count);
 }
 
-void	ft_lst_philo_clear(t_lst_philo *head)
+void	ft_philo_clear(t_philo *head)
 {
-	t_lst_philo	*current;
-	t_lst_philo	*next;
+	t_philo	*current;
+	t_philo	*next;
 
 	if (!head)
 		return ;
@@ -57,9 +57,9 @@ void	ft_lst_philo_clear(t_lst_philo *head)
 	free(current);
 }
 
-void	ft_lst_philo_addback(t_lst_philo **head, t_lst_philo *new)
+void	ft_philo_addback(t_philo **head, t_philo *new)
 {
-	t_lst_philo	*tempo;
+	t_philo	*tempo;
 
 	if (!head || !new)
 		return ;
@@ -73,7 +73,7 @@ void	ft_lst_philo_addback(t_lst_philo **head, t_lst_philo *new)
 	new->next = NULL;
 }
 //
-//t_lst_philo	*ft_lst_philo_new(t_lst_philo *head)
+//t_philo	*ft_philo_new(t_philo *head)
 //{
 //	head->next = head;
 //	head->prev = head;

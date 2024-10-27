@@ -1,8 +1,12 @@
 NAME = philo
 SRCS = main.c \
 		ft_safe_atoi.c \
-		lst_utils.c \
-		error.c
+		error.c \
+		exit.c \
+		mutex.c \
+		initialization.c \
+		time.c \
+		thread.c
 #		activities.c \
 #		arguments.c \
 #		deinit.c \

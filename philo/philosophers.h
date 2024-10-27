@@ -43,6 +43,16 @@ enum e_philo_state
 	EAT,
 	SLEEP,
 	THINK,
+    FORK,
+};
+
+enum e_philo_action
+{
+    TAKE_FORK,
+    EATING,
+    SLEEPING,
+    THINKING,
+    DYING,
 };
 
 typedef enum e_fork_state
@@ -57,20 +67,6 @@ typedef struct s_fork
 	pthread_mutex_t			*mutex;
 }							t_fork;
 
-typedef struct s_lst_philosophers
-{
-	size_t					id;
-    pthread_mutex_t			*print_mutex;
-    pthread_t				thread;
-    pthread_mutex_t			*left_fork;
-    pthread_mutex_t			*right_fork;
-    struct timeval			last_meal;
-	enum e_philo_state		state;
-
-    struct timeval              ref_time;
-    struct s_lst_philosophers   *next;
-} t_lst_philo;
-
 struct s_timer
 {
 	struct timeval			*time;
@@ -83,6 +79,8 @@ struct s_death
 	pthread_mutex_t			    *mutex;
 };
 
+struct s_philosophers_tab;
+
 typedef struct s_main_data
 {
 	size_t						number_of_philosophers;
@@ -93,8 +91,21 @@ typedef struct s_main_data
 	struct s_death				death;
 	struct timeval				ref_time;
     pthread_mutex_t			    *print_mutex;
-    t_lst_philo					*philosophers;
+    struct s_philosophers_tab   *philosophers;
 }t_main_data;
+
+typedef struct s_philosophers_tab
+{
+    size_t					id;
+    pthread_t				thread;
+    pthread_mutex_t			*left_fork;
+    pthread_mutex_t			*right_fork;
+    struct timeval			last_meal;
+    enum e_philo_state		state;
+
+    struct s_main_data      main_data;
+} t_philo;
+
 //
 //int							ft_atoui_safe(const char *nptr, int *flag_error);
 //int							error_manager(t_err error);
@@ -116,14 +127,29 @@ typedef struct s_main_data
 //int							rejoin_threads(t_par *parameters);
 //int							create_threads(t_par *parameters);
 //int							is_dead(t_philo *philosophers);
+
 int                         ft_safe_atoi(char *s, bool *error);
-int	error_manager(t_err error_type);
-//
-t_lst_philo *lst_philo_get_last(t_lst_philo *head);
-size_t	                    ft_lst_size(t_lst_philo *head);
-void	                    ft_lst_philo_clear(t_lst_philo *head);
-void	                    ft_lst_philo_addback(t_lst_philo **head, t_lst_philo *new);
-//t_lst_philo	                *ft_lst_philo_new(t_lst_philo *head);
+int	                        error_manager(t_err error_type);
+
+unsigned int                get_time_in_ms();
+
+int                         initialize_data(t_main_data *data);
+
+int	                        launch_philos_threads(t_main_data *data);
+int	                        join_philos_threads(t_main_data *data);
+
+pthread_mutex_t             *init_mutex();
+int                         clear_mutex(pthread_mutex_t **mutex);
+
+void                        clear_philo_tab(t_philo **philo_tab, size_t philo_count);
+void                        clear_data(t_main_data *data);
+
+//TODO=REMOVE
+void	                    *test_routine(void *arg);
+void                        *routine(void *arg);
+
+
+//t_philo	                *ft_philo_new(t_philo *head);
 
 
 #endif
