@@ -32,12 +32,12 @@ void	*unlock_forks(void *void_fork_mutex)
 
 int	is_dead(t_philo *philosophers)
 {
-	pthread_mutex_lock(philosophers->prm->dead->dead_mutex);
-	if (philosophers->prm->dead->someone_died > 0)
+	pthread_mutex_lock(philosophers->main->dead->mutex);
+	if (philosophers->main->dead->is_any_death > 0)
 	{
-		pthread_mutex_unlock(philosophers->prm->dead->dead_mutex);
+		pthread_mutex_unlock(philosophers->main->dead->mutex);
 		return (1);
 	}
-	pthread_mutex_unlock(philosophers->prm->dead->dead_mutex);
+	pthread_mutex_unlock(philosophers->main->dead->mutex);
 	return (0);
 }

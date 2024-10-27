@@ -34,18 +34,18 @@ static void	philosopher_recave(t_philo **philosophers, t_par *parameters, int i)
 {
 	struct timeval	*timeref;
 
-	timeref = parameters->ttime->time_reference;
-	philosophers[i]->philosopher_id = i + 1;
+	timeref = parameters->time->time_reference;
+	philosophers[i]->id = i + 1;
 	philosophers[i]->right_fork = init_fork();
-	if (philosophers[i]->last)
+	if (philosophers[i]->prev)
 	{
-		philosophers[i]->last->next = philosophers[i];
-		philosophers[i]->left_fork = philosophers[i]->last->right_fork;
+		philosophers[i]->prev->next = philosophers[i];
+		philosophers[i]->left_fork = philosophers[i]->prev->right_fork;
 	}
-	philosophers[i]->last_meal = malloc(sizeof(struct timeval));
-	philosophers[i]->prm = parameters;
-	philosophers[i]->last_meal->tv_sec = timeref->tv_sec;
-	philosophers[i]->last_meal->tv_usec = timeref->tv_usec;
+	philosophers[i]->prev_meal = malloc(sizeof(struct timeval));
+	philosophers[i]->main = parameters;
+	philosophers[i]->prev_meal->tv_sec = timeref->tv_sec;
+	philosophers[i]->prev_meal->tv_usec = timeref->tv_usec;
 }
 
 t_philo	**init_philosophers(t_par *parameters)
@@ -63,13 +63,13 @@ t_philo	**init_philosophers(t_par *parameters)
 		philosophers[i] = malloc(sizeof(t_philo));
 		if (!philosophers[i])
 			return (NULL);
-		philosophers[i]->last = last_philosopher;
+		philosophers[i]->prev = last_philosopher;
 		philosopher_recave(philosophers, parameters, i);
 		last_philosopher = philosophers[i];
 		i++;
 	}
 	philosophers[--i]->next = philosophers[0];
-	philosophers[0]->last = philosophers[i];
+	philosophers[0]->prev = philosophers[i];
 	philosophers[0]->left_fork = philosophers[i]->right_fork;
 	return (philosophers);
 }

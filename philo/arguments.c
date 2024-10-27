@@ -74,10 +74,10 @@ static int	arguments_to_delays(t_par *parameters, int argc, char **argv)
 
 static void	mutex_inits(t_par *parameters)
 {
-	parameters->dead->dead_mutex = malloc(sizeof(pthread_mutex_t));
-	pthread_mutex_init(parameters->dead->dead_mutex, NULL);
-	parameters->ttime->time_mutex = malloc(sizeof(pthread_mutex_t));
-	pthread_mutex_init(parameters->ttime->time_mutex, NULL);
+	parameters->dead->mutex = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(parameters->dead->mutex, NULL);
+	parameters->time->mutex = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(parameters->time->mutex, NULL);
 }
 
 t_par	*arg_manager(int argc, char **argv, struct timeval *reference)
@@ -89,7 +89,7 @@ t_par	*arg_manager(int argc, char **argv, struct timeval *reference)
 	parameters = malloc(sizeof(t_par));
 	if (!parameters)
 	{
-		error_manager(MEM_ISSUE);
+		error_manager(MEM_ERR);
 		return (NULL);
 	}
 	if (arguments_to_delays(parameters, argc, argv) == -1)
@@ -100,11 +100,11 @@ t_par	*arg_manager(int argc, char **argv, struct timeval *reference)
 	}
 	if (conventional_checks(parameters) == -1)
 		return (NULL);
-	parameters->ttime = malloc(sizeof(t_time));
-	parameters->ttime->time_reference = reference;
+	parameters->time = malloc(sizeof(t_time));
+	parameters->time->time_reference = reference;
 	parameters->philosophers = init_philosophers(parameters);
 	parameters->dead = malloc(sizeof(t_hesdead));
-	parameters->dead->someone_died = 0;
+	parameters->dead->is_any_death = 0;
 	mutex_inits(parameters);
 	return (parameters);
 }

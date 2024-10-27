@@ -11,23 +11,40 @@
 /* ************************************************************************** */
 
 #include "philosophers.h"
+#include <stdbool.h>
 
-int	error_manager(t_err error)
+static size_t ft_strlen(const char *s)
 {
-	if (error == ARG_NBR)
-		write(2, "Error\nWrong number of arguments\n", 32);
-	else if (error == NO_UINT)
-		write(2, "Error\nPlease only use unsigned_ints as arguments", 48);
-	else if (error == MEM_ISSUE)
-		write(2, "Error\nMemory problem encountred\n", 32);
-	else if (error == ZERO_PHILO)
-		write(2,
-			"Error\nPhilosophers should exist\n", 32);
-	else if (error == THR_ISSUE)
-		write(2, "Error\nInternal problem creating threads\n", 40);
-	else if (error == MAX_THR)
-		write(2, "Error\n32753 is the threads limit\n", 33);
-	else if (error == MUTEX)
-		write(2, "Error\nProblem wiht a mutex\n", 27);
-	return (-1);
+    size_t i;
+
+    if (!s)
+        return (0);
+    i = 0;
+    while (s[i])
+        i++;
+    return (i);
+}
+
+int	error_manager(t_err error_type)
+{
+    static bool broadcasted = false;
+    const char *errors[9] = {
+            "invalid syntax",
+            "wrong number of arguments",
+            "please only use positive ints as arguments",
+            "memory problem encountered",
+            "philosophers should exist",
+            "internal problem creating threads",
+            "32753 is the threads limit",
+            "problem happened initializing a mutex",
+            "int overflow"
+    };
+
+    if (broadcasted || error_type > 8)
+        return (1);
+    broadcasted = true;
+    write(2, "Error\n", 6);
+    write(2, errors[error_type], ft_strlen(errors[error_type]));
+    write(2, "\n", 1);
+    return (1);
 }

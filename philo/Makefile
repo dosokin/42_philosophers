@@ -1,8 +1,21 @@
 NAME = philo
-SRCS = main.c ft_atoui.c activities.c arguments.c deinit.c eat.c error.c init.c lockers.c timemaster.c threads.c
+SRCS = main.c \
+		ft_safe_atoi.c \
+		lst_utils.c \
+		error.c
+#		activities.c \
+#		arguments.c \
+#		deinit.c \
+#		eat.c \
+#		error.c \
+#		init.c \
+#		lockers.c \
+#		timemaster.c \
+#		threads.c
+
 OBJS = $(SRCS:.c=.o)
 HEADER = philosophers.h
-FLAGS = -Werror -Wall -Wextra -g
+FLAGS =  -Wall -Wextra -Werror -pthread -g
 CC = cc
 
 ifdef CHECK

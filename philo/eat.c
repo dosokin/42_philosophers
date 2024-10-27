@@ -19,10 +19,10 @@ static int	take_first_fork(t_philo *philosophers)
 	{
 		*(philosophers->left_fork->fork_status) = UNAVAILABLE;
 		unlock_forks(philosophers->left_fork->mutex);
-		pthread_mutex_lock(philosophers->prm->ttime->time_mutex);
-		printf("%f %d has taken a fork\n", get_time(philosophers->prm->ttime),
-			philosophers->philosopher_id);
-		pthread_mutex_unlock(philosophers->prm->ttime->time_mutex);
+		pthread_mutex_lock(philosophers->main->time->mutex);
+		printf("%f %d has taken a fork\n", get_time(philosophers->main->time),
+			philosophers->id);
+		pthread_mutex_unlock(philosophers->main->time->mutex);
 		return (1);
 	}
 	else
@@ -39,10 +39,10 @@ static int	take_second_fork(t_philo *philosophers)
 	{
 		*(philosophers->right_fork->fork_status) = UNAVAILABLE;
 		unlock_forks(philosophers->right_fork->mutex);
-		pthread_mutex_lock(philosophers->prm->ttime->time_mutex);
-		printf("%f %d has taken a fork\n", get_time(philosophers->prm->ttime),
-			philosophers->philosopher_id);
-		pthread_mutex_unlock(philosophers->prm->ttime->time_mutex);
+		pthread_mutex_lock(philosophers->main->time->mutex);
+		printf("%f %d has taken a fork\n", get_time(philosophers->main->time),
+			philosophers->id);
+		pthread_mutex_unlock(philosophers->main->time->mutex);
 		return (1);
 	}
 	else
@@ -76,13 +76,13 @@ int	philosopher_eating(t_philo *philosophers)
 {
 	int	eat_repetition;
 
-	eat_repetition = philosophers->prm->time_to_eat / 8;
-	gettimeofday(philosophers->last_meal, NULL);
-	pthread_mutex_lock(philosophers->prm->ttime->time_mutex);
-	printf("%f %d is eating\n", get_time(philosophers->prm->ttime),
-		philosophers->philosopher_id);
-	pthread_mutex_unlock(philosophers->prm->ttime->time_mutex);
-	do_something(philosophers, eat_repetition, philosophers->prm->time_to_eat);
+	eat_repetition = philosophers->main->time_to_eat / 8;
+	gettimeofday(philosophers->prev_meal, NULL);
+	pthread_mutex_lock(philosophers->main->time->mutex);
+	printf("%f %d is eating\n", get_time(philosophers->main->time),
+		philosophers->id);
+	pthread_mutex_unlock(philosophers->main->time->mutex);
+	do_something(philosophers, eat_repetition, philosophers->main->time_to_eat);
 	release_forks(philosophers);
 	return (1);
 }

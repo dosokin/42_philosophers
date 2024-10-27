@@ -18,7 +18,7 @@ static void	deinit_philosophers(t_philo *philosopher)
 	pthread_mutex_destroy(philosopher->right_fork->mutex);
 	free(philosopher->right_fork->mutex);
 	free(philosopher->right_fork);
-	free(philosopher->last_meal);
+	free(philosopher->prev_meal);
 	free(philosopher);
 }
 
@@ -33,12 +33,12 @@ void	deinit(t_par *parameters, int philo_number)
 		i++;
 	}
 	free(parameters->philosophers);
-	free(parameters->ttime->time_reference);
-	pthread_mutex_destroy(parameters->ttime->time_mutex);
-	free(parameters->ttime->time_mutex);
-	free(parameters->ttime);
-	pthread_mutex_destroy(parameters->dead->dead_mutex);
-	free(parameters->dead->dead_mutex);
+	free(parameters->time->time_reference);
+	pthread_mutex_destroy(parameters->time->mutex);
+	free(parameters->time->mutex);
+	free(parameters->time);
+	pthread_mutex_destroy(parameters->dead->mutex);
+	free(parameters->dead->mutex);
 	free(parameters->dead);
 	free(parameters);
 }
