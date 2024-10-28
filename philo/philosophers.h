@@ -16,17 +16,17 @@
 # include <errno.h>
 # include <limits.h>
 # include <pthread.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
-# include <stdbool.h>
 
-#define ERROR 1
+# define ERROR 1
 
 typedef enum e_error
 {
-    SYNTAX_ERR,
+	SYNTAX_ERR,
 	ARG_NBR,
 	NO_UINT,
 	MEM_ERR,
@@ -34,122 +34,121 @@ typedef enum e_error
 	THR_ISSUE,
 	MAX_THR,
 	MUTEX,
-    INT_OVERFLOW,
-}							t_err;
+	INT_OVERFLOW,
+}								t_err;
 
-enum e_philo_state
+enum							e_philo_state
 {
-	DEAD,
+	FORK,
 	EAT,
 	SLEEP,
 	THINK,
-    FORK,
-};
-
-enum e_philo_action
-{
-    TAKE_FORK,
-    EATING,
-    SLEEPING,
-    THINKING,
-    DYING,
+	DEAD
 };
 
 typedef enum e_fork_state
 {
 	UNAVAILABLE,
 	AVAILABLE,
-}							t_fork_state;
+}								t_fork_state;
 
 typedef struct s_fork
 {
-	t_fork_state			*fork_status;
-	pthread_mutex_t			*mutex;
-}							t_fork;
+	t_fork_state				*fork_status;
+	pthread_mutex_t				*mutex;
+}								t_fork;
 
-struct s_timer
+struct							s_timer
 {
-	struct timeval			*time;
-	pthread_mutex_t			*mutex;
+	struct timeval				*time;
+	pthread_mutex_t				*mutex;
 };
 
-struct s_death
+struct							s_end
 {
 	bool						is_death;
-	pthread_mutex_t			    *mutex;
+	bool						everyone_ate;
+	pthread_mutex_t				*mutex;
 };
 
-struct s_philosophers_tab;
+struct							s_protected_bool
+{
+	bool						boolean;
+	pthread_mutex_t				*mutex;
+};
+
+struct	s_philosophers_tab;
 
 typedef struct s_main_data
 {
 	size_t						number_of_philosophers;
-	size_t					    time_to_die;
+	size_t						time_to_die;
 	size_t						time_to_eat;
 	size_t						time_to_sleep;
-	int						    must_eat;
-	struct s_death				death;
-	struct timeval				ref_time;
-    pthread_mutex_t			    *print_mutex;
-    struct s_philosophers_tab   *philosophers;
-}t_main_data;
+	int							must_eat;
+
+	unsigned long int			ref_time;
+	pthread_mutex_t				*print_mutex;
+	struct s_philosophers_tab	*philosophers;
+	pthread_t					supervision_thread;
+
+}								t_main_data;
 
 typedef struct s_philosophers_tab
 {
-    size_t					id;
-    pthread_t				thread;
-    pthread_mutex_t			*left_fork;
-    pthread_mutex_t			*right_fork;
-    struct timeval			last_meal;
-    enum e_philo_state		state;
+	size_t						id;
+	pthread_t					thread;
+	pthread_mutex_t				*left_fork;
+	pthread_mutex_t				*right_fork;
+	unsigned long int			last_meal;
+	enum e_philo_state			state;
+	bool						first_meal;
 
-    struct s_main_data      main_data;
-} t_philo;
+	struct s_protected_bool		satiated;
+	struct s_protected_bool		dead;
+	struct s_protected_bool		end;
 
-//
-//int							ft_atoui_safe(const char *nptr, int *flag_error);
-//int							error_manager(t_err error);
-//float						get_time(t_time *time);
-//t_philo						**init_philosophers(t_par *parameters);
-//t_par						*arg_manager(int argc, char **argv,
-//								struct timeval *reference);
-//float						get_chrono(struct timeval *reference);
-//void						deinit(t_par *parameters, int philo_number);
-//int							philosopher_eating(t_philo *philosophers);
-//int							take_forks(t_philo *philosophers);
-//int							philosopher_thinking(t_philo *philosophers);
-//void						do_something(t_philo *philosophers, int repetition,
-//								int act_time);
-//int							philosopher_sleeping(t_philo *philosophers);
-//void						*lock_forks(void *void_fork_mutex);
-//void						*unlock_forks(void *void_fork_mutex);
-//void						*routine(void *arg);
-//int							rejoin_threads(t_par *parameters);
-//int							create_threads(t_par *parameters);
-//int							is_dead(t_philo *philosophers);
+	struct s_main_data			data;
 
-int                         ft_safe_atoi(char *s, bool *error);
-int	                        error_manager(t_err error_type);
+}								t_philo;
 
-unsigned int                get_time_in_ms();
+int								ft_safe_atoi(char *s, bool *error);
+int								error_manager(t_err error_type);
 
-int                         initialize_data(t_main_data *data);
+unsigned int					get_time_in_ms(unsigned long int ref_time);
+void							ft_printf(t_philo philo,
+									enum e_philo_state state);
 
-int	                        launch_philos_threads(t_main_data *data);
-int	                        join_philos_threads(t_main_data *data);
+int								initialize_data(t_main_data *data);
 
-pthread_mutex_t             *init_mutex();
-int                         clear_mutex(pthread_mutex_t **mutex);
+int								launch_philos_threads(t_main_data *data);
+int								join_philos_threads(t_main_data *data);
 
-void                        clear_philo_tab(t_philo **philo_tab, size_t philo_count);
-void                        clear_data(t_main_data *data);
+pthread_mutex_t					*init_mutex(void);
+int								clear_mutex(pthread_mutex_t **mutex);
 
-//TODO=REMOVE
-void	                    *test_routine(void *arg);
-void                        *routine(void *arg);
+void							clear_philo_tab(t_philo **philo_tab,
+									size_t philo_count);
+void							clear_data(t_main_data *data);
 
+void							*philo_routine(void *arg);
 
-//t_philo	                *ft_philo_new(t_philo *head);
+void							*supervision(void *arg);
 
+void							release_forks(t_philo *philo);
+int								take_forks(t_philo *philo);
+
+int								extract_args(int argc, char **argv,
+									t_main_data *data);
+int								check_args_validity(t_main_data data);
+
+bool							check_for_end(t_philo *philo);
+void							update_state(t_philo *philo,
+									enum e_philo_state state);
+bool							is_dead(t_philo *philo);
+int								ft_sleep(t_philo *philo,
+									unsigned long int time);
+
+// t_philo		             *ft_philo_new(t_philo *head);
 
 #endif
