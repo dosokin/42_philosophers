@@ -6,7 +6,10 @@ int	launch_philos_processes(t_main_data *data)
     int pid_of_supervisor;
 
     i = 0;
-    pid_of_supervisor = 
+    pid_of_supervisor = fork();
+    if (!pid_of_supervisor) {
+        supervision(data);
+    }
     while (i < data->number_of_philosophers)
     {
         if (i % 2 == 0) {
